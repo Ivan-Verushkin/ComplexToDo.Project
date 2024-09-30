@@ -58,7 +58,7 @@ namespace ComplexToDo.Project.Controllers
                 }
 
                 var token = _jwtService.GenerateToken(user);
-                return Ok(new { Token = token });
+                return Ok(new { Token = token, Name = user.Fullname });
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.Message);
