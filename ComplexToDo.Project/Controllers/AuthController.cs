@@ -37,8 +37,17 @@ namespace ComplexToDo.Project.Controllers
                 return BadRequest("User registration failed");
             }
 
-            var token = _jwtService.GenerateToken(user);
-            return Ok(new {Token = token});
+            var accessToken = _jwtService.GenerateToken(user);
+            _jwtService.SetRefreshToken(user);
+
+            await _userRepository.UpdateUserAsync(user);
+
+            return Ok(new 
+            {
+                Token = accessToken,
+                RefreshToken = user.RefreshToken,
+                Name = user.Fullname,
+            });
         }
 
         [HttpPost("login")]
@@ -59,11 +68,20 @@ namespace ComplexToDo.Project.Controllers
                     return BadRequest("invalid credentials");
                 }
 
-                var token = _jwtService.GenerateToken(user);
-                return Ok(new { Token = token, Name = user.Fullname });
+                var accessToken = _jwtService.GenerateToken(user);
+
+                _jwtService.SetRefreshToken(user);
+
+                await _userRepository.UpdateUserAsync(user);
+
+                return Ok(new 
+                { 
+                    Token = accessToken, 
+                    RefreshToken = user.RefreshToken,
+                    Name = user.Fullname 
+                });
             }
             catch (Exception ex) {
-                Console.WriteLine(ex.Message);
                 return StatusCode(500);
             }
         }

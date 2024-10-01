@@ -10,5 +10,6 @@ namespace ComplexToDo.Project.Repositories.IRepositories
         Task<bool> ForgotPasswordAsync(ApplicationUser user);
         Task<bool> ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
         Task<bool> ValidatePasswordAsync(ApplicationUser user, string password);
+        Task UpdateUserAsync(ApplicationUser user);
     }
 }

@@ -66,6 +66,10 @@ namespace ComplexToDo.Project.Repositories
             return true;
         }
 
+        public async Task UpdateUserAsync(ApplicationUser user)
+        {
+            await userManager.UpdateAsync(user);
+        }
 
         public async Task<bool> ValidatePasswordAsync(ApplicationUser user, string password)
         {
