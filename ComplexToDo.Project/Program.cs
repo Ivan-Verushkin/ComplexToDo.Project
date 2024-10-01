@@ -2,6 +2,7 @@ using ComplexToDo.Project.Data;
 using ComplexToDo.Project.Models;
 using ComplexToDo.Project.Repositories;
 using ComplexToDo.Project.Repositories.IRepositories;
+using ComplexToDo.Project.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -46,8 +47,11 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod();
         });
 });
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 // Register JwtService
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<EmailService>();
 
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

@@ -1,6 +1,7 @@
 ﻿using ComplexToDo.Project.Data;
 using ComplexToDo.Project.Models;
 using ComplexToDo.Project.Repositories.IRepositories;
+using ComplexToDo.Project.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace ComplexToDo.Project.Repositories
@@ -8,9 +9,11 @@ namespace ComplexToDo.Project.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly EmailService emailService;
 
-        public UserRepository(UserManager<ApplicationUser> userManager) {
+        public UserRepository(UserManager<ApplicationUser> userManager, EmailService emailService) {
             this.userManager = userManager;
+            this.emailService = emailService;
         }
         public async Task<bool> ConfirmUserEmailASync(ApplicationUser user, string token)
         {
@@ -26,8 +29,18 @@ namespace ComplexToDo.Project.Repositories
 
         public async Task<bool> ForgotPasswordAsync(ApplicationUser user)
         {
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                throw new ArgumentException("User email cannot be null or empty");
+            }
+
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            //ToDo implement email sending
+
+            var resetUrl = $"http://localhost:3000/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+            
+            await emailService.SendEmailAsync(user.Email, "Reset Your Password",
+                $"<h1>Password Reset</h1><p>To reset your password, click <a href='{resetUrl}'>here</a>.</p>");
+
             return true;
         }
 

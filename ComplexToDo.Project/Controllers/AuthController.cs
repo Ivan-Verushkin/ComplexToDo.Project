@@ -1,5 +1,6 @@
 ﻿using ComplexToDo.Project.Models;
 using ComplexToDo.Project.Repositories.IRepositories;
+using ComplexToDo.Project.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDo.Project.Services;
@@ -12,11 +13,12 @@ namespace ComplexToDo.Project.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly JwtService _jwtService;
-
-        public AuthController(IUserRepository userRepository, JwtService jwtService)
+        private readonly EmailService _emailService;
+        public AuthController(IUserRepository userRepository, JwtService jwtService, EmailService emailService)
         {
             _userRepository = userRepository;
             _jwtService = jwtService;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -76,16 +78,15 @@ namespace ComplexToDo.Project.Controllers
                 return BadRequest("There is no such user");
             }
 
-            try
-            {
-                var result = await _userRepository.ForgotPasswordAsync(user);
+            var res = await _userRepository.ForgotPasswordAsync(user);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
+            if (res)
             {
-                Console.WriteLine(ex.Message);
-                return StatusCode(500);
+                return Ok(new { Message = "Password reset link has been sent to your email." });
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while sending the password reset email.");
             }
         }
 
