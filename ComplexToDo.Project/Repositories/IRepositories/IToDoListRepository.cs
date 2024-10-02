@@ -5,7 +5,7 @@ namespace ComplexToDo.Project.Repositories.IRepositories
 {
     public interface IToDoListRepository
     {
-        Task<List<ToDoDto>> GetAllToDoListsByEmail(string email); 
+        Task<List<ToDoListDto>> GetAllToDoListsByEmail(string email); 
 
         Task<ToDoList> GetToDoListByUserId (string id);
 

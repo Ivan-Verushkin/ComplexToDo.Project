@@ -75,7 +75,7 @@ namespace ComplexToDo.Project.Repositories
             return true;
         }
 
-        public async Task<List<ToDoDto>> GetAllToDoListsByEmail(string email)
+        public async Task<List<ToDoListDto>> GetAllToDoListsByEmail(string email)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
             if (user == null)
@@ -83,18 +83,20 @@ namespace ComplexToDo.Project.Repositories
                 return null;
             }
 
-            // Get a flattened list of ToDo items
-            var toDos = await _dbContext.ToDos
-                .Where(t => t.ToDoList.UserId == user.Id)
-                .Select(todo => new ToDoDto
+            var toDoLists = await _dbContext.ToDoLists
+                .Where (t => t.UserId == user.Id)
+                .Select(todo => new ToDoListDto
                 {
                     Id = todo.Id,
-                    ToDoText = todo.ToDoText,
-                    CompleteTillDate = todo.CompleteTillDate
-                })
-                .ToListAsync();
+                    ToDoListName = todo.ToDoListName,
+                }).ToListAsync();
 
-            return toDos;
+            foreach (var list  in toDoLists)
+            {
+                list.ToDos = await _dbContext.ToDos.Where(x => x.ToDoListId == list.Id).ToListAsync();
+            }
+
+            return toDoLists;
         }
 
         public async Task<ToDoList> GetToDoListById(int id)
