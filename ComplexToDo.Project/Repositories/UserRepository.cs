@@ -3,6 +3,7 @@ using ComplexToDo.Project.Models;
 using ComplexToDo.Project.Repositories.IRepositories;
 using ComplexToDo.Project.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ComplexToDo.Project.Repositories
 {
@@ -47,6 +48,11 @@ namespace ComplexToDo.Project.Repositories
         public async Task<ApplicationUser> GetUserByEmailAsync(string email)
         {
             return await userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<ApplicationUser> GetUserByRefreshTokenAsync(string refreshToken)
+        {
+            return await userManager.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
         }
 
         public async Task<bool> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)

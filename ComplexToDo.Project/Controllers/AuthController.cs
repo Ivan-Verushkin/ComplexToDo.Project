@@ -130,5 +130,35 @@ namespace ComplexToDo.Project.Controllers
             return Ok("Password reset successful.");
         }
 
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenModel model)
+        {
+            if (string.IsNullOrEmpty(model.RefreshToken))
+            {
+                return BadRequest("Invalid request, no refresh token provided.");
+            }
+
+            var user = await _userRepository.GetUserByRefreshTokenAsync(model.RefreshToken);
+
+            if (user == null || user.RefreshTokenExpiry < DateTime.Now)
+            {
+                return Unauthorized("Invalid or expired refresh token.");
+            }
+
+            // Generate new access token and refresh token
+            var accessToken = _jwtService.GenerateToken(user);
+            _jwtService.SetRefreshToken(user);
+
+            // Update the user's refresh token in the database
+            await _userRepository.UpdateUserAsync(user);
+
+            return Ok(new
+            {
+                Token = accessToken,
+                RefreshToken = user.RefreshToken
+            });
+        }
+
+
     }
 }
